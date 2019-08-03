@@ -1,0 +1,27 @@
+{
+  "name": "new-purs",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "test": "spago test",
+    "clean": "rimraf .cache .spago .psci_modules output .pulp-cache prod dist",
+    "build": "spago build",
+    "dev": "rimraf dist && spago build && parcel build --public-url ./ index.html",
+    "prod": "rimraf prod dist && mkdir prod && spago bundle --main Main --to prod/index.prod.js && java -jar closure-compiler/closure-compiler-v20190301.jar --js prod/index.prod.js --js_output_file prod/index.js && cp index.html prod/index.html && parcel build --public-url ./ prod/index.html && rimraf prod",
+    "start:spago": "spago build --watch",
+    "start:parcel": "parcel index.html",
+    "start": "run-p -l start:*"
+  },
+  "dependencies": {
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.5",
+    "parcel-bundler": "^1.12.3",
+    "purescript": "^0.13.2",
+    "rimraf": "^2.6.3",
+    "spago": "^0.8.5"
+  }
+}
