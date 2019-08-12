@@ -1,13 +1,16 @@
 { name =
     "despesas-purescript"
 , dependencies =
-    [ "effect"
-    , "console"
-    , "psci-support"
+    [ "aff"
     , "concur-react"
-    , "format"
-    , "numbers"
+    , "console"
     , "debug"
+    , "effect"
+    , "format"
+    , "indexedDB"
+    , "numbers"
+    , "parallel"
+    , "psci-support"
     , "read"
     ]
 , packages =

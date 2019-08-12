@@ -116,6 +116,22 @@ let upstream =
 
 let overrides = {=}
 
-let additions = {=}
+let additions =
+  { indexedDB =
+      { dependencies =
+          [ "aff"
+          , "datetime"
+          , "effect"
+          , "exceptions"
+          , "foreign"
+          , "maybe"
+          , "nullable"
+          , "prelude"
+          , "read"
+          ]
+      , repo = "https://github.com/dwhitney/purescript-indexedDB.git"
+      , version = "57f60b34d34f507c3d89a3d7d40b236b4fef73ba"
+      }
+  }
 
 in  upstream // overrides // additions

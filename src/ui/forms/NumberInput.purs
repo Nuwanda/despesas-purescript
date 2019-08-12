@@ -14,8 +14,8 @@ numberInput n =
         Just v -> show v
         Nothing -> ""
   in fromString <$> D.input [ P._type "number"
-                            , P.defaultValue value
-                            , P.unsafeTargetValue <$> P.onBlur
+                            , P.value value
+                            , P.unsafeTargetValue <$> P.onChange
                             , P.className "form-input"
                             ]
 

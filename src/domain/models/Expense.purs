@@ -3,8 +3,9 @@ module Expense where
 import Prelude
 
 import Data.Enum (class Enum, enumFromTo)
-import Data.Maybe (Maybe(..))
-import Data.String.Read (class Read, class Zero)
+import Data.Maybe (Maybe(..), fromMaybe)
+import Data.String.Read (class Read, class Zero, read)
+import DateUtilities (timeFromISOString)
 
 data ExpenseType
   = Casa
@@ -52,17 +53,51 @@ allExpenseTypes = enumFromTo Casa Misc
 
 type Expense =
   { value :: Number
-  , date :: Maybe Number
+  , date :: Number
   , expenseType :: ExpenseType
   , extra :: Boolean
   , description :: Maybe String
   }
 
-defaultExpense :: Expense
+type ExpenseForm =
+  { value :: Number
+  , date :: String
+  , expenseType :: ExpenseType
+  , extra :: Boolean
+  , description :: Maybe String
+  }
+
+type ExpenseDB =
+  { value :: Number
+  , date :: Number
+  , expenseType :: String
+  , extra :: Boolean
+  , description :: String
+  }
+
+defaultExpense :: ExpenseForm
 defaultExpense =
   { value: 7.0
-  , date: Nothing
+  , date: ""
   , expenseType: Comida
   , extra: false
-  , description: Just "Iguarias"
+  , description: Nothing
   }
+
+fromFormToModel :: ExpenseForm -> Expense
+fromFormToModel e = e {date = fromMaybe 0.0 (timeFromISOString e.date) }
+
+fromModelToDB :: Expense -> ExpenseDB
+fromModelToDB e =
+  e { expenseType = show e.expenseType
+    , description = fromMaybe "" e.description
+    }
+
+fromDBToModel :: ExpenseDB -> Expense
+fromDBToModel e =
+  let description = case e.description of
+        "" -> Nothing
+        s -> Just s
+  in e { expenseType = fromMaybe Comida (read e.expenseType)
+       , description = description
+       }

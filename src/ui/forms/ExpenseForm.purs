@@ -2,17 +2,15 @@ module ExpenseForm (expenseForm) where
 
 import Prelude
 
+import CheckboxInput (checkboxInput)
 import Concur.Core (Widget)
 import Concur.React (HTML)
 import Concur.React.DOM as D
 import Concur.React.Props as P
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.String.Read (readDefault)
-
-import Expense (Expense, ExpenseType, allExpenseTypes)
-
 import DateInput (dateInput)
-import CheckboxInput (checkboxInput)
+import Expense (ExpenseForm, ExpenseType, allExpenseTypes)
 import NumberInput (numberInput)
 
 formGroup :: forall a. String -> Widget HTML a -> Widget HTML a
@@ -32,8 +30,8 @@ checkboxFormGroup label value =
 textarea :: Maybe String -> Widget HTML String
 textarea value =
   D.textarea
-  [ P.unsafeTargetValue <$> P.onBlur
-  , P.defaultValue $ fromMaybe "" value
+  [ P.unsafeTargetValue <$> P.onChange
+  , P.value $ fromMaybe "" value
   , P.className "form-input"
   ]
   []
@@ -51,29 +49,29 @@ submitButton :: Widget HTML Unit
 submitButton =
   D.button
   [ P.onClick $> unit
-  , P.className "btn btn-lg btn-primary float-right"
+  , P.className "btn btn-lg btn-primary float-right mt-2"
   , P._type "button"
   ]
   [D.text "Submit"]
 
 data FormAction
   = Value (Maybe Number)
-  | Date (Maybe Number)
+  | Date String
   | Type ExpenseType
   | Extra Boolean
   | Description String
   | Submit
 
-expenseForm :: Expense -> Widget HTML Expense
+expenseForm :: ExpenseForm -> Widget HTML ExpenseForm
 expenseForm exp = do
   res <- D.form [P.className "form-horizontal"]
-         [ formGroup "Value" (numberInput $ Just exp.value) <#> Value
-         , formGroup "Date" (dateInput exp.date) <#> Date
-         , formGroup "Type" (selectType exp.expenseType) <#> Type
-         , checkboxFormGroup "Extra" exp.extra <#> Extra
-         , formGroup "Description" (textarea exp.description)  <#> Description
-         , submitButton $> Submit
-    ]
+           [ formGroup "Value" (numberInput $ Just exp.value) <#> Value
+           , formGroup "Date" (dateInput exp.date) <#> Date
+           , formGroup "Type" (selectType exp.expenseType) <#> Type
+           , checkboxFormGroup "Extra" exp.extra <#> Extra
+           , formGroup "Description" (textarea exp.description)  <#> Description
+           , submitButton $> Submit
+           ]
   -- Handle Action and recur
   case res of
     Value s -> expenseForm $ exp {value = fromMaybe 0.0 s}
