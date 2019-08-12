@@ -7,21 +7,31 @@ import Concur.React (HTML)
 import Concur.React.DOM as D
 import Concur.React.Props as P
 import Concur.React.Run (runWidgetInDom)
+import Data.Array ((:), deleteAt)
+import Data.Maybe (fromMaybe)
 import Effect (Effect)
+import Expense (Expense, defaultExpense)
 import ExpenseForm (expenseForm)
-import Expense (defaultExpense)
+import ExpenseTable (expenseTable)
 
-dummyHandler :: forall a. Widget HTML a
-dummyHandler = do
-  _ <- expenseForm defaultExpense
-  D.div [P.className "text-center"] [D.text "Form Submitted"]
+data Actions
+  = Add Expense
+  | Remove Int
 
-wrapper :: forall a. Widget HTML a
-wrapper = do
-  D.div [P.className "container"]
+wrapper :: forall a. Array Expense ->  Widget HTML a
+wrapper expenses = do
+  res <-
+    D.div [P.className "container"]
     [ D.div [P.className "columns"]
-      [ D.div_ [P.className "column col-6 col-mx-auto"]
-        dummyHandler]]
+      [ D.div_ [P.className "column col-6 col-md-12 col-mx-auto p-2"]
+        (expenseForm defaultExpense) <#> Add
+      , D.div_ [P.className "column col-6 col-md-12 col-mx-auto p-2"]
+        (expenseTable expenses) <#> Remove
+      ]
+    ]
+  case res of
+    Add exp -> wrapper (exp : expenses)
+    Remove idx -> wrapper $ fromMaybe [] (deleteAt idx expenses)
 
 main :: Effect Unit
-main = runWidgetInDom "root" wrapper
+main = runWidgetInDom "root" $ wrapper []

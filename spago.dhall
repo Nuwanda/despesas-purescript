@@ -1,9 +1,5 @@
-{-
-Welcome to a Spago project!
-You can edit this file as you like.
--}
 { name =
-    "my-project"
+    "despesas-purescript"
 , dependencies =
     [ "effect"
     , "console"
@@ -12,6 +8,7 @@ You can edit this file as you like.
     , "format"
     , "numbers"
     , "debug"
+    , "read"
     ]
 , packages =
     ./packages.dhall

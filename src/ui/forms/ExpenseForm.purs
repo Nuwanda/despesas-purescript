@@ -7,18 +7,13 @@ import Concur.React (HTML)
 import Concur.React.DOM as D
 import Concur.React.Props as P
 import Data.Maybe (Maybe(..), fromMaybe)
-import DateInput (dateInput)
-import NumberInput (numberInput)
-import CheckboxInput (checkboxInput)
-import Expense (Expense, ExpenseType, defaultExpense)
+import Data.String.Read (readDefault)
 
-data FormAction
-  = Value (Maybe Number)
-  | Date (Maybe Number)
-  | Type ExpenseType
-  | Extra Boolean
-  | Description String
-  | Submit
+import Expense (Expense, ExpenseType, allExpenseTypes)
+
+import DateInput (dateInput)
+import CheckboxInput (checkboxInput)
+import NumberInput (numberInput)
 
 formGroup :: forall a. String -> Widget HTML a -> Widget HTML a
 formGroup label child =
@@ -43,19 +38,38 @@ textarea value =
   ]
   []
 
+optionType :: forall a. ExpenseType -> Widget HTML a
+optionType t = D.option [P.value $ show t] [D.text $ show t]
+
+selectType :: ExpenseType -> Widget HTML ExpenseType
+selectType t = do
+  readDefault <<< P.unsafeTargetValue <$>
+    D.select [P.className "form-select", P.value $ show t, P.onChange]
+    (map optionType allExpenseTypes)
+
 submitButton :: Widget HTML Unit
 submitButton =
   D.button
   [ P.onClick $> unit
   , P.className "btn btn-lg btn-primary float-right"
+  , P._type "button"
   ]
   [D.text "Submit"]
+
+data FormAction
+  = Value (Maybe Number)
+  | Date (Maybe Number)
+  | Type ExpenseType
+  | Extra Boolean
+  | Description String
+  | Submit
 
 expenseForm :: Expense -> Widget HTML Expense
 expenseForm exp = do
   res <- D.form [P.className "form-horizontal"]
          [ formGroup "Value" (numberInput $ Just exp.value) <#> Value
          , formGroup "Date" (dateInput exp.date) <#> Date
+         , formGroup "Type" (selectType exp.expenseType) <#> Type
          , checkboxFormGroup "Extra" exp.extra <#> Extra
          , formGroup "Description" (textarea exp.description)  <#> Description
          , submitButton $> Submit
@@ -66,5 +80,5 @@ expenseForm exp = do
     Extra b -> expenseForm $ exp {extra = b}
     Date s -> expenseForm $ exp {date = s}
     Description d -> expenseForm $ exp {description = Just d}
+    Type t -> expenseForm $ exp {expenseType = t}
     Submit -> pure exp
-    _ -> expenseForm exp
