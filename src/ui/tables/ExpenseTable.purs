@@ -8,9 +8,9 @@ import Concur.React.DOM as D
 import Concur.React.Props as P
 import Data.Array (mapWithIndex)
 import Data.Maybe (fromMaybe)
+import DateUtilities (datePrettyDisplay)
 import Effect.Class (liftEffect)
 import Expense (Expense)
-import DateUtilities (datePrettyDisplay)
 
 extraCell :: forall a. Boolean -> Widget HTML a
 extraCell extra =
