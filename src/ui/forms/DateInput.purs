@@ -14,4 +14,5 @@ dateInput date =
     , P.value date
     , P.unsafeTargetValue <$> P.onChange
     , P.className "form-input"
+    , P.required true
     ]

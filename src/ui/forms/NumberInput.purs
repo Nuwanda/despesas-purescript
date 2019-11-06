@@ -5,17 +5,15 @@ import Concur.Core (Widget)
 import Concur.React (HTML)
 import Concur.React.DOM as D
 import Concur.React.Props as P
-import Data.Maybe (Maybe(..))
-import Data.Number (fromString)
 
-numberInput :: Maybe Number -> Widget HTML (Maybe Number)
-numberInput n =
-  let value = case n of
-        Just v -> show v
-        Nothing -> ""
-  in fromString <$> D.input [ P._type "number"
-                            , P.value value
-                            , P.unsafeTargetValue <$> P.onChange
-                            , P.className "form-input"
-                            ]
+numberInput :: String -> Widget HTML String
+numberInput value = do
+  D.input [ P._type "number"
+          , P.value value
+          , P.onChange <#> P.unsafeTargetValue
+          , P.className "form-input"
+          , P.min "0"
+          , P.step "0.01"
+          , P.required true
+          ]
 

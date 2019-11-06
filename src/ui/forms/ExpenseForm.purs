@@ -10,8 +10,11 @@ import Concur.React.Props as P
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.String.Read (readDefault)
 import DateInput (dateInput)
+import Effect (Effect)
+import Effect.Class (liftEffect)
 import Expense (ExpenseForm, ExpenseType, allExpenseTypes)
 import NumberInput (numberInput)
+import React.SyntheticEvent (SyntheticMouseEvent, preventDefault, stopPropagation)
 
 formGroup :: forall a. String -> Widget HTML a -> Widget HTML a
 formGroup label child =
@@ -45,17 +48,22 @@ selectType t = do
     D.select [P.className "form-select", P.value $ show t, P.onChange]
     (map optionType allExpenseTypes)
 
+handleSubmitClick :: SyntheticMouseEvent -> Effect Unit
+handleSubmitClick e = do
+  preventDefault e
+  stopPropagation e
+
 submitButton :: Widget HTML Unit
 submitButton =
-  D.button
-  [ P.onClick $> unit
-  , P.className "btn btn-lg btn-primary float-right mt-2"
-  , P._type "button"
-  ]
-  [D.text "Submit"]
+  liftEffect =<< D.button
+    [ P.onClick <#> handleSubmitClick
+    , P.className "btn btn-lg btn-primary float-right mt-2"
+    , P._type "submit"
+    ]
+    [D.text "Submit"]
 
 data FormAction
-  = Value (Maybe Number)
+  = Value String
   | Date String
   | Type ExpenseType
   | Extra Boolean
@@ -64,8 +72,8 @@ data FormAction
 
 expenseForm :: ExpenseForm -> Widget HTML ExpenseForm
 expenseForm exp = do
-  res <- D.form [P.className "form-horizontal"]
-           [ formGroup "Value" (numberInput $ Just exp.value) <#> Value
+  res <- D.form [P.className "form-horizontal", P._id "expenseForm"]
+           [ formGroup "Value" (numberInput exp.value) <#> Value
            , formGroup "Date" (dateInput exp.date) <#> Date
            , formGroup "Type" (selectType exp.expenseType) <#> Type
            , checkboxFormGroup "Extra" exp.extra <#> Extra
@@ -74,7 +82,7 @@ expenseForm exp = do
            ]
   -- Handle Action and recur
   case res of
-    Value s -> expenseForm $ exp {value = fromMaybe 0.0 s}
+    Value s -> expenseForm $ exp {value = s}
     Extra b -> expenseForm $ exp {extra = b}
     Date s -> expenseForm $ exp {date = s}
     Description d -> expenseForm $ exp {description = Just d}

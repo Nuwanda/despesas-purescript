@@ -4,6 +4,7 @@ import Prelude
 
 import Data.Enum (class Enum, enumFromTo)
 import Data.Maybe (Maybe(..), fromMaybe)
+import Data.Number (fromString)
 import Data.String.Read (class Read, class Zero, read)
 import DateUtilities (timeFromISOString)
 
@@ -60,7 +61,7 @@ type Expense =
   }
 
 type ExpenseForm =
-  { value :: Number
+  { value :: String
   , date :: String
   , expenseType :: ExpenseType
   , extra :: Boolean
@@ -77,15 +78,17 @@ type ExpenseDB =
 
 defaultExpense :: ExpenseForm
 defaultExpense =
-  { value: 7.0
+  { value: "7"
   , date: ""
   , expenseType: Comida
   , extra: false
-  , description: Nothing
+  , description: Just "Iguarias"
   }
 
 fromFormToModel :: ExpenseForm -> Expense
-fromFormToModel e = e {date = fromMaybe 0.0 (timeFromISOString e.date) }
+fromFormToModel e = e { value = fromMaybe 0.0 $ fromString e.value
+                      , date = fromMaybe 0.0 (timeFromISOString e.date)
+                      }
 
 fromModelToDB :: Expense -> ExpenseDB
 fromModelToDB e =
